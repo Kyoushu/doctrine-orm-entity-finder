@@ -1,0 +1,24 @@
+{
+    "name": "kyoushu/doctrine-orm-entity-finder",
+    "description": "Boilerplate for building finder classes to be used with Doctrine ORM",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "James Willans",
+            "email": "james.willans@accordmarketing.com"
+        }
+    ],
+    "require": {
+        "doctrine/orm": "~2.4,<3.0",
+        "symfony/property-access": "~2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.8,<5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        }
+    }
+}
