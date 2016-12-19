@@ -223,29 +223,13 @@ abstract class AbstractFinder implements FinderInterface
      */
     private function findEntitiesByIds(array $ids, $hydrationMode)
     {
-        $query = $this->getRepository()
-            ->createQueryBuilder($this->getEntityAlias())
+        $query = $this
+            ->createQueryBuilder()
             ->andWhere(sprintf('%s.id IN (:ids)', $this->getEntityAlias()))
             ->setParameter('ids', $ids)
             ->getQuery();
 
         $result = $query->getResult($hydrationMode);
-
-        usort($result, function($a, $b) use ($ids){
-
-            /** @var object|array $a */
-            /** @var object|array $b */
-
-            $aId = (is_object($a) ? $a->getId() : $a['id']);
-            $bId = (is_object($b) ? $b->getId() : $b['id']);
-
-            $aKey = array_search($aId, $ids);
-            $bKey = array_search($bId, $ids);
-
-            if($aKey === $bKey) return 0;
-            return ($aKey > $bKey ? 1 : -1);
-
-        });
 
         return $result;
     }
