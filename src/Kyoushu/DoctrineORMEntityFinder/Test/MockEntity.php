@@ -25,6 +25,14 @@ class MockEntity
     protected $name;
 
     /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
      * @return null|string
      */
     public function getName()

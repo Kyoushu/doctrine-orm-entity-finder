@@ -1,16 +1,11 @@
 <?php
 
-namespace Kyoushu\DoctrineORMEntityFinder\Test;
+namespace Kyoushu\DoctrineORMEntityFinder;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Tools\Pagination\Paginator;
-use Kyoushu\DoctrineORMEntityFinder\FinderException;
-use Kyoushu\DoctrineORMEntityFinder\FinderInterface;
-use Kyoushu\DoctrineORMEntityFinder\Result;
-use Kyoushu\DoctrineORMEntityFinder\ResultInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
@@ -130,7 +125,7 @@ abstract class AbstractFinder implements FinderInterface
     {
         $alias = $this->getEntityAlias();
         $queryBuilder = $this->createQueryBuilder();
-        $queryBuilder->select(sprintf('COUNT(%s.id)', $alias)); // @todo use matadata to determine ID property
+        $queryBuilder->select(sprintf('COUNT(%s.id)', $alias));
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
@@ -191,15 +186,6 @@ abstract class AbstractFinder implements FinderInterface
         return $parameters;
     }
 
-    private function getPaginatorEntities(Paginator $paginator)
-    {
-        $entities = array();
-        foreach($paginator as $entity){
-            $entities[] = $entity;
-        }
-        return $entities;
-    }
-
     /**
      * @param array $entities
      * @param int $total
@@ -214,6 +200,56 @@ abstract class AbstractFinder implements FinderInterface
         return new Result($entities, $total, $parameters, $routeParameters, $page, $perPage);
     }
 
+    private function getResultIds()
+    {
+        $query = $this->createQueryBuilder()
+            ->select(sprintf('DISTINCT %s.id', $this->getEntityAlias()))
+            ->getQuery();
+
+        $result = $query->getArrayResult();
+
+        $ids = array();
+        foreach($result as $row){
+            $ids[] = $row['id'];
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @param array $ids
+     * @param int $hydrationMode
+     * @return array|object[]
+     */
+    private function findEntitiesByIds(array $ids, $hydrationMode)
+    {
+        $query = $this->getRepository()
+            ->createQueryBuilder($this->getEntityAlias())
+            ->andWhere(sprintf('%s.id IN (:ids)', $this->getEntityAlias()))
+            ->setParameter('ids', $ids)
+            ->getQuery();
+
+        $result = $query->getResult($hydrationMode);
+
+        usort($result, function($a, $b) use ($ids){
+
+            /** @var object|array $a */
+            /** @var object|array $b */
+
+            $aId = (is_object($a) ? $a->getId() : $a['id']);
+            $bId = (is_object($b) ? $b->getId() : $b['id']);
+
+            $aKey = array_search($aId, $ids);
+            $bKey = array_search($bId, $ids);
+
+            if($aKey === $bKey) return 0;
+            return ($aKey > $bKey ? 1 : -1);
+
+        });
+
+        return $result;
+    }
+
     /**
      * @param int $hydrationMode
      * @return ResultInterface
@@ -226,18 +262,14 @@ abstract class AbstractFinder implements FinderInterface
         $page = $this->getPage();
         $perPage = $this->getPerPage();
 
-        if($perPage !== null){
-            $firstResult = ($page - 1) * $perPage;
-            $query->setFirstResult($firstResult);
-            $query->setMaxResults($perPage);
-        }
-
         if($perPage === null){
             $entities = $query->getResult($hydrationMode);
         }
         else{
-            $paginator = new Paginator($query, true);
-            $entities = $this->getPaginatorEntities($paginator);
+            $offset = ($page - 1) * $perPage;
+            $ids = $this->getResultIds();
+            $ids = array_slice($ids, $offset, $perPage);
+            $entities = $this->findEntitiesByIds($ids, $hydrationMode);
         }
 
         $total = $this->getTotal();

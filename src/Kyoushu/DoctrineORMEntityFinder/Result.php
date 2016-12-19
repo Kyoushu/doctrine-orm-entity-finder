@@ -188,4 +188,48 @@ class Result implements ResultInterface
         $this->index = 0;
     }
 
+    // \ArrayAccess implementation
+
+    /**
+     * @param int $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->entities[$offset]);
+    }
+
+    /**
+     * @param int $offset
+     * @return array|object
+     */
+    public function offsetGet($offset)
+    {
+        return $this->entities[$offset];
+    }
+
+    /**
+     * @param int $offset
+     * @param array|object $value
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->entities[$offset] = $value;
+    }
+
+    /**
+     * @param int $offset
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->entities[$offset]);
+    }
+
+    // \Countable interface
+
+    public function count()
+    {
+        return count($this->entities);
+    }
+
 }

@@ -3,6 +3,7 @@
 namespace Kyoushu\DoctrineORMEntityFinder\Test;
 
 use Doctrine\ORM\QueryBuilder;
+use Kyoushu\DoctrineORMEntityFinder\AbstractFinder;
 
 class MockFinder extends AbstractFinder
 {

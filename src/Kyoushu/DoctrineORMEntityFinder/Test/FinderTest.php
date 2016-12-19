@@ -38,4 +38,30 @@ class FinderTest extends FinderTestCase
         $this->assertEquals(1, $finder->getTotal());
     }
 
+    public function testGetResultPaginated()
+    {
+        $finder = $this->createMockFinder();
+
+        $finder->setPerPage(2)->setPage(1);
+        $result = $finder->getResult();
+
+        $this->assertCount(2, $result);
+
+        $this->assertEquals(3, $result[0]->getId());
+        $this->assertEquals(4, $result[1]->getId());
+
+        $finder->setPerPage(2)->setPage(2);
+        $result = $finder->getResult();
+
+        $this->assertCount(2, $result);
+
+        $this->assertEquals(1, $result[0]->getId());
+        $this->assertEquals(2, $result[1]->getId());
+
+        $finder->setPerPage(2)->setPage(3);
+        $result = $finder->getResult();
+
+        $this->assertCount(0, $result);
+    }
+
 }

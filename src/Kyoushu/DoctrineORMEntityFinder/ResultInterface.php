@@ -2,7 +2,7 @@
 
 namespace Kyoushu\DoctrineORMEntityFinder;
 
-interface ResultInterface extends \Iterator
+interface ResultInterface extends \Iterator, \ArrayAccess, \Countable
 {
 
     /**
