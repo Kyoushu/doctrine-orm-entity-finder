@@ -182,7 +182,7 @@ abstract class AbstractFinder implements FinderInterface
         $parameters = $this->getParameters();
         $nullPlaceholder = static::ROUTE_NULL_PLACEHOLDER;
         array_walk($parameters, function(&$value) use ($nullPlaceholder){
-            if($value === null) $value = $nullPlaceholder;
+            if(!$value) $value = $nullPlaceholder;
         });
         return $parameters;
     }
