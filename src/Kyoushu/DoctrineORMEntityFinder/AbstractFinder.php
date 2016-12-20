@@ -125,7 +125,8 @@ abstract class AbstractFinder implements FinderInterface
     {
         $alias = $this->getEntityAlias();
         $queryBuilder = $this->createQueryBuilder();
-        $queryBuilder->select(sprintf('COUNT(%s.id)', $alias));
+        $queryBuilder->select(sprintf('COUNT(DISTINCT %s.id)', $alias));
+        $queryBuilder->resetDQLPart('groupBy'); // Remove group by so we don't end up with multiple rows
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 

@@ -120,4 +120,35 @@ class FinderTest extends FinderTestCase
         $this->assertEquals('Baz', $finder->getName());
     }
 
+    public function testGroupingFinder()
+    {
+        $entityManager = $this->createEntityManager();
+
+        $entities = array(
+            (new MockEntity())
+                ->setName('first entity')
+                ->addChild((new MockChildEntity())->setName('first child'))
+                ->addChild((new MockChildEntity())->setName('second child')),
+            (new MockEntity())
+                ->setName('second entity')
+                ->addChild((new MockChildEntity())->setName('third child'))
+                ->addChild((new MockChildEntity())->setName('fourth child'))
+        );
+
+        foreach($entities as $entity){
+            $entityManager->persist($entity);
+        }
+        $entityManager->flush();
+
+        $finder = new MockGroupingFinder();
+        $finder->setEntityManager($entityManager);
+        $finder->setPerPage(null);
+
+        $this->assertEquals(2, $finder->getTotal());
+
+        $finder->setPerPage(1);
+
+        $this->assertEquals(2, $finder->getTotal());
+    }
+
 }

@@ -52,6 +52,9 @@ class MockFinder extends AbstractFinder
             $queryBuilder->setParameter('name', $name);
         }
 
+        $queryBuilder->leftJoin('entity.children', 'child');
+        $queryBuilder->addSelect('child');
+
         $queryBuilder->orderBy('entity.name', 'ASC');
     }
 

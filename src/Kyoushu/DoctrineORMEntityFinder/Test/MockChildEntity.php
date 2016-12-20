@@ -2,13 +2,12 @@
 
 namespace Kyoushu\DoctrineORMEntityFinder\Test;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
  */
-class MockEntity
+class MockChildEntity
 {
 
     /**
@@ -26,15 +25,10 @@ class MockEntity
     protected $name;
 
     /**
-     * @var ArrayCollection|MockChildEntity[]
-     * @ORM\OneToMany(targetEntity="Kyoushu\DoctrineORMEntityFinder\Test\MockChildEntity", mappedBy="parent", cascade={"all"})
+     * @var MockEntity|null
+     * @ORM\ManyToOne(targetEntity="Kyoushu\DoctrineORMEntityFinder\Test\MockEntity", inversedBy="children")
      */
-    protected $children;
-
-    public function __construct()
-    {
-        $this->children = new ArrayCollection();
-    }
+    protected $parent;
 
     /**
      * @return int
@@ -63,31 +57,21 @@ class MockEntity
     }
 
     /**
-     * @return ArrayCollection|MockChildEntity[]
+     * @return MockEntity|null
      */
-    public function getChildren()
+    public function getParent()
     {
-        return $this->children;
+        return $this->parent;
     }
 
     /**
-     * @param MockChildEntity $child
+     * @param MockEntity|null $parent
      * @return $this
      */
-    public function addChild(MockChildEntity $child)
+    public function setParent(MockEntity $parent = null)
     {
-        $this->children->add($child);
-        $child->setParent($this);
+        $this->parent = $parent;
         return $this;
-    }
-
-    /**
-     * @param MockChildEntity $child
-     */
-    public function removeChild(MockChildEntity $child)
-    {
-        $this->children->removeElement($child);
-        $child->setParent(null);
     }
 
 }
