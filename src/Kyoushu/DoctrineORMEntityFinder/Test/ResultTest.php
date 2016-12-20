@@ -29,6 +29,17 @@ class ResultTest extends FinderTestCase
         }
     }
 
+    public function testGetTotalPages()
+    {
+        $result = new Result(array(), 50, array(), array(), 1, 10);
+
+        $this->assertEquals(5, $result->getTotalPages());
+
+        $result = new Result(array(), 0, array(), array(), 1, 10);
+
+        $this->assertEquals(1, $result->getTotalPages());
+    }
+
     public function testPagination()
     {
         $result = new Result(array(), 9, array(), array(), 1, 3);
