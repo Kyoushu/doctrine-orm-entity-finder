@@ -33,7 +33,7 @@ class MockFinder extends AbstractFinder
      */
     public function getParameterKeys()
     {
-        return array('name');
+        return array('name', 'page', 'perPage');
     }
 
     public function getEntityClass()

@@ -64,4 +64,60 @@ class FinderTest extends FinderTestCase
         $this->assertCount(0, $result);
     }
 
+    public function testParameters()
+    {
+        $finder = new MockFinder();
+
+        $finder->setPage(1)->setPerPage(2)->setName('Foo');
+
+        $this->assertEquals(
+            array(
+                'page' => 1,
+                'perPage' => 2,
+                'name' => 'Foo'
+            ),
+            $finder->getParameters()
+        );
+
+        $finder = new MockFinder();
+
+        $finder->setParameters(array(
+            'page' => 3,
+            'perPage' => 12,
+            'name' => 'Bar'
+        ));
+
+        $this->assertEquals(3, $finder->getPage());
+        $this->assertEquals(12, $finder->getPerPage());
+        $this->assertEquals('Bar', $finder->getName());
+    }
+
+    public function testRouteParameters()
+    {
+        $finder = new MockFinder();
+
+        $finder->setPage(1)->setPerPage(2)->setName(null);
+
+        $this->assertEquals(
+            array(
+                'page' => 1,
+                'perPage' => 2,
+                'name' => '-'
+            ),
+            $finder->getRouteParameters()
+        );
+
+        $finder = new MockFinder();
+
+        $finder->setRouteParameters(array(
+            'page' => 1,
+            'perPage' => '-',
+            'name' => 'Baz'
+        ));
+
+        $this->assertEquals(1, $finder->getPage());
+        $this->assertEquals(null, $finder->getPerPage());
+        $this->assertEquals('Baz', $finder->getName());
+    }
+
 }
