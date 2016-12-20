@@ -1,5 +1,7 @@
 # Doctrine ORM Entity Finder
 
+[![Build Status](https://travis-ci.org/Kyoushu/doctrine-orm-entity-finder.svg?branch=master)](https://travis-ci.org/Kyoushu/doctrine-orm-entity-finder)
+
 Boilerplate for building finder classes to be used with Doctrine ORM
 
 ## Class Example
