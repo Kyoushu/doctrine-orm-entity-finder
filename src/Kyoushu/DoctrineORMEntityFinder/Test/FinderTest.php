@@ -74,7 +74,8 @@ class FinderTest extends FinderTestCase
             array(
                 'page' => 1,
                 'perPage' => 2,
-                'name' => 'Foo'
+                'name' => 'Foo',
+                'created' => null
             ),
             $finder->getParameters()
         );
@@ -102,7 +103,8 @@ class FinderTest extends FinderTestCase
             array(
                 'page' => 1,
                 'perPage' => 2,
-                'name' => '-'
+                'name' => '-',
+                'created' => '-'
             ),
             $finder->getRouteParameters()
         );
@@ -118,6 +120,26 @@ class FinderTest extends FinderTestCase
         $this->assertEquals(1, $finder->getPage());
         $this->assertEquals(null, $finder->getPerPage());
         $this->assertEquals('Baz', $finder->getName());
+    }
+
+    public function testDateTimeRouteParameter()
+    {
+        $finder = new MockFinder();
+
+        $routeParameters = $finder->getRouteParameters();
+        $this->assertEquals('-', $routeParameters['created']);
+
+        $finder->setCreated(new \DateTime('2017-01-01T13:00:00+00:00'));
+        $routeParameters = $finder->getRouteParameters();
+        $this->assertEquals('2017-01-01T13:00:00+00:00', $routeParameters['created']);
+
+        $routeParameters = array('created' => '2018-08-12T13:23:14+00:00');
+        $finder->setCreated(null);
+        $finder->setRouteParameters($routeParameters);
+
+        $created = $finder->getCreated();
+        $this->assertInstanceOf('\DateTime', $created);
+        $this->assertEquals('12/08/2018 13:23:14', $created->format('d/m/Y H:i:s'));
     }
 
     public function testGroupingFinder()

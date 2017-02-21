@@ -8,7 +8,15 @@ use Kyoushu\DoctrineORMEntityFinder\AbstractFinder;
 class MockFinder extends AbstractFinder
 {
 
+    /**
+     * @var null|string
+     */
     protected $name = null;
+
+    /**
+     * @var null|\DateTime
+     */
+    protected $created = null;
 
     /**
      * @return null
@@ -29,11 +37,29 @@ class MockFinder extends AbstractFinder
     }
 
     /**
+     * @return \DateTime|null
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param \DateTime|null $created
+     * @return $this
+     */
+    public function setCreated(\DateTime $created = null)
+    {
+        $this->created = $created;
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getParameterKeys()
     {
-        return array('name', 'page', 'perPage');
+        return array('name', 'page', 'perPage', 'created');
     }
 
     public function getEntityClass()

@@ -12,6 +12,9 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
 abstract class AbstractFinder implements FinderInterface
 {
 
+    const DATETIME_REGEX = '/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[\-\+][0-9]{2}:[0-9]{2}$/';
+    const DATETIME_FORMAT = 'c';
+
     /**
      * @var EntityManager
      */
@@ -169,6 +172,9 @@ abstract class AbstractFinder implements FinderInterface
         $nullPlaceholder = static::ROUTE_NULL_PLACEHOLDER;
         array_walk($routeParameters, function(&$value) use ($nullPlaceholder){
             if($value === $nullPlaceholder) $value = null;
+            if(is_string($value) && preg_match(self::DATETIME_REGEX, $value)){
+                $value = new \DateTime($value);
+            }
         });
         $this->setParameters($routeParameters);
         return $this;
@@ -182,6 +188,9 @@ abstract class AbstractFinder implements FinderInterface
         $parameters = $this->getParameters();
         $nullPlaceholder = static::ROUTE_NULL_PLACEHOLDER;
         array_walk($parameters, function(&$value) use ($nullPlaceholder){
+            if($value instanceof \DateTime){
+                $value = $value->format(self::DATETIME_FORMAT);
+            }
             if(!$value) $value = $nullPlaceholder;
         });
         return $parameters;
