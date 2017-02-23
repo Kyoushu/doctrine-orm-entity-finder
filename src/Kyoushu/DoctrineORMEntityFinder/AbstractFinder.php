@@ -83,7 +83,9 @@ abstract class AbstractFinder implements FinderInterface
      */
     public function setPage($page)
     {
-        $this->page = (int)$page;
+        $page = (int)$page;
+        if($page < 1) $page = 1;
+        $this->page = $page;
         return $this;
     }
 
