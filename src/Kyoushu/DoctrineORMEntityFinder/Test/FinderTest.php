@@ -120,6 +120,18 @@ class FinderTest extends FinderTestCase
         $this->assertEquals(1, $finder->getPage());
         $this->assertEquals(null, $finder->getPerPage());
         $this->assertEquals('Baz', $finder->getName());
+
+        $finder = new MockFinder();
+
+        $finder->setRouteParameters(array(
+            'name' => '0'
+        ));
+
+        $this->assertNotNull($finder->getName());
+        $this->assertEquals(0, $finder->getName());
+
+        $routeParameters = $finder->getRouteParameters();
+        $this->assertEquals(0, $routeParameters['name']);
     }
 
     public function testDateTimeRouteParameter()

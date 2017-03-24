@@ -193,7 +193,7 @@ abstract class AbstractFinder implements FinderInterface
             if($value instanceof \DateTime){
                 $value = $value->format(self::DATETIME_FORMAT);
             }
-            if(!$value) $value = $nullPlaceholder;
+            if($value === null || $value === '') $value = $nullPlaceholder;
         });
         return $parameters;
     }
