@@ -5,6 +5,7 @@ namespace Kyoushu\DoctrineORMEntityFinder;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Kyoushu\DoctrineORMEntityFinder\RouteParameters\PropertyMap;
 
 interface FinderInterface
 {
@@ -64,6 +65,11 @@ interface FinderInterface
      * @return array
      */
     public function getRouteParameters();
+
+    /**
+     * @return PropertyMap|null
+     */
+    public function createRouteParameterMap();
 
     /**
      * @param array $routeParameters

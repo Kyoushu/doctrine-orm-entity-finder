@@ -2,6 +2,8 @@
 
 namespace Kyoushu\DoctrineORMEntityFinder\Test;
 
+use Kyoushu\MockRouteParameterMappedFinder;
+
 class FinderTest extends FinderTestCase
 {
 
@@ -183,6 +185,45 @@ class FinderTest extends FinderTestCase
         $finder->setPerPage(1);
 
         $this->assertEquals(2, $finder->getTotal());
+    }
+
+    public function testRouteParameterMap()
+    {
+        $finder = new MockRouteParameterMappedFinder();
+
+        $this->assertEquals([
+            'name' => '-',
+            'created' => '-',
+            'published' => '-',
+            'attributes' => '-'
+        ], $finder->getRouteParameters());
+
+        $finder->setName('foo');
+        $finder->setCreated(new \DateTime('2017-01-01 12:15:30'));
+        $finder->setAttributes(['foo','bar','baz']);
+        $finder->setPublished(true);
+
+        $this->assertEquals([
+            'name' => 'foo',
+            'created' => '2017-01-01T12:15:30+00:00',
+            'published' => '1',
+            'attributes' => 'foo,bar,baz'
+        ], $finder->getRouteParameters());
+
+        $finder = new MockRouteParameterMappedFinder();
+
+        $finder->setRouteParameters([
+            'name' => 'foo',
+            'created' => '2017-01-01T12:15:30+00:00',
+            'published' => '1',
+            'attributes' => 'foo,bar,baz'
+        ]);
+
+        $this->assertEquals('foo', $finder->getName());
+        $this->assertEquals('2017-01-01 12:15:30', $finder->getCreated()->format('Y-m-d H:i:s'));
+        $this->assertTrue($finder->getPublished());
+        $this->assertEquals(['foo','bar','baz'], $finder->getAttributes());
+
     }
 
 }

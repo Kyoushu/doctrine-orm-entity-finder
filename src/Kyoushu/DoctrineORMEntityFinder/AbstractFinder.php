@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Kyoushu\DoctrineORMEntityFinder\RouteParameters\PropertyMap;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
@@ -171,6 +172,12 @@ abstract class AbstractFinder implements FinderInterface
      */
     public function setRouteParameters(array $routeParameters)
     {
+        $map = $this->createRouteParameterMap();
+        if($map){
+            $map->applyRouteParameters($this, $routeParameters);
+            return $this;
+        }
+
         $nullPlaceholder = static::ROUTE_NULL_PLACEHOLDER;
         array_walk($routeParameters, function(&$value) use ($nullPlaceholder){
             if($value === $nullPlaceholder) $value = null;
@@ -187,6 +194,9 @@ abstract class AbstractFinder implements FinderInterface
      */
     public function getRouteParameters()
     {
+        $map = $this->createRouteParameterMap();
+        if($map) return $map->createRouteParameters($this);
+
         $parameters = $this->getParameters();
         $nullPlaceholder = static::ROUTE_NULL_PLACEHOLDER;
         array_walk($parameters, function(&$value) use ($nullPlaceholder){
@@ -196,6 +206,14 @@ abstract class AbstractFinder implements FinderInterface
             if($value === null || $value === '') $value = $nullPlaceholder;
         });
         return $parameters;
+    }
+
+    /**
+     * @return PropertyMap|null
+     */
+    public function createRouteParameterMap()
+    {
+        return null;
     }
 
     /**
