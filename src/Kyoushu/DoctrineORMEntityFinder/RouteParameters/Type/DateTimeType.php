@@ -8,6 +8,18 @@ use Kyoushu\DoctrineORMEntityFinder\RouteParameters\Type\Exception\TypeException
 class DateTimeType implements TypeInterface
 {
 
+    const DEFAULT_FORMAT = 'c';
+
+    /**
+     * @var string
+     */
+    protected $format;
+
+    public function __construct()
+    {
+        $this->format = self::DEFAULT_FORMAT;
+    }
+
     /**
      * @param null|\DateTime $value
      * @return string
@@ -22,7 +34,7 @@ class DateTimeType implements TypeInterface
                 is_object($value) ? get_class($value) : gettype($value)
             ));
         }
-        return $value->format('c');
+        return $value->format($this->format);
     }
 
     /**
@@ -32,8 +44,31 @@ class DateTimeType implements TypeInterface
     public function reverseTransform($value)
     {
         if($value === FinderInterface::ROUTE_NULL_PLACEHOLDER) return null;
-        return new \DateTime($value);
+
+        if($this->format !== self::DEFAULT_FORMAT){
+            return \DateTime::createFromFormat($this->format, $value);
+        }
+        else{
+            return new \DateTime($value);
+        }
     }
 
+    /**
+     * @return string
+     */
+    public function getFormat()
+    {
+        return $this->format;
+    }
+
+    /**
+     * @param string $format
+     * @return $this
+     */
+    public function setFormat($format)
+    {
+        $this->format = $format;
+        return $this;
+    }
 
 }

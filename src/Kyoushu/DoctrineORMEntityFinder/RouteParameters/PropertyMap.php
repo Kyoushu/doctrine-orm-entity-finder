@@ -2,7 +2,6 @@
 
 namespace Kyoushu\DoctrineORMEntityFinder\RouteParameters;
 
-use Kyoushu\DoctrineORMEntityFinder\FinderInterface;
 use Kyoushu\DoctrineORMEntityFinder\RouteParameters\Type\TypeInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
@@ -41,16 +40,24 @@ class PropertyMap
     }
 
     /**
-     * @param FinderInterface $finder
+     * @return TypeInterface[]
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
+
+    /**
+     * @param object $context
      * @return array
      */
-    public function createRouteParameters(FinderInterface $finder)
+    public function createRouteParameters($context)
     {
         $routeParameters = [];
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
 
         foreach($this->properties as $key => $type){
-            $value = $propertyAccessor->getValue($finder, $key);
+            $value = $propertyAccessor->getValue($context, $key);
             $routeParameters[$key] = $type->transform($value);
         }
 
@@ -58,17 +65,17 @@ class PropertyMap
     }
 
     /**
-     * @param FinderInterface $finder
+     * @param object $context
      * @param array $routeParameters
      */
-    public function applyRouteParameters(FinderInterface $finder, array $routeParameters)
+    public function applyRouteParameters($context, array $routeParameters)
     {
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
 
         foreach($this->properties as $key => $type){
             if(!isset($routeParameters[$key])) continue;
             $value = $routeParameters[$key];
-            $propertyAccessor->setValue($finder, $key, $type->reverseTransform($value));
+            $propertyAccessor->setValue($context, $key, $type->reverseTransform($value));
         }
     }
 
