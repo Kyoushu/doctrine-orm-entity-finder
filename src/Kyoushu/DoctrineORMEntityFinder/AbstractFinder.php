@@ -55,6 +55,7 @@ abstract class AbstractFinder implements FinderInterface
 
     /**
      * @return EntityRepository
+     * @throws FinderException
      */
     private function getRepository()
     {
@@ -111,6 +112,7 @@ abstract class AbstractFinder implements FinderInterface
 
     /**
      * @return QueryBuilder
+     * @throws FinderException
      */
     public function createQueryBuilder()
     {
@@ -126,12 +128,15 @@ abstract class AbstractFinder implements FinderInterface
 
     /**
      * @return int
+     * @throws FinderException
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getTotal()
     {
         $alias = $this->getEntityAlias();
         $queryBuilder = $this->createQueryBuilder();
-        $queryBuilder->select(sprintf('COUNT(DISTINCT %s.id)', $alias));
+        $queryBuilder->select(sprintf('COUNT(DISTINCT %s.%s)', $alias, $this->getPrimaryKeyName()));
         $queryBuilder->resetDQLPart('groupBy'); // Remove group by so we don't end up with multiple rows
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
@@ -230,17 +235,23 @@ abstract class AbstractFinder implements FinderInterface
         return new Result($entities, $total, $parameters, $routeParameters, $page, $perPage);
     }
 
+    /**
+     * @return int[]
+     * @throws FinderException
+     */
     private function getResultIds()
     {
+        $primaryKeyName = $this->getPrimaryKeyName();
+
         $query = $this->createQueryBuilder()
-            ->select(sprintf('DISTINCT %s.id', $this->getEntityAlias()))
+            ->select(sprintf('DISTINCT %s.%s', $this->getEntityAlias(), $primaryKeyName))
             ->getQuery();
 
         $result = $query->getArrayResult();
 
         $ids = array();
         foreach($result as $row){
-            $ids[] = $row['id'];
+            $ids[] = $row[$primaryKeyName];
         }
 
         return $ids;
@@ -250,12 +261,13 @@ abstract class AbstractFinder implements FinderInterface
      * @param array $ids
      * @param int $hydrationMode
      * @return array|object[]
+     * @throws FinderException
      */
     private function findEntitiesByIds(array $ids, $hydrationMode)
     {
         $query = $this
             ->createQueryBuilder()
-            ->andWhere(sprintf('%s.id IN (:ids)', $this->getEntityAlias()))
+            ->andWhere(sprintf('%s.%s IN (:ids)', $this->getEntityAlias(), $this->getPrimaryKeyName()))
             ->setParameter('ids', $ids)
             ->getQuery();
 
@@ -267,6 +279,9 @@ abstract class AbstractFinder implements FinderInterface
     /**
      * @param int $hydrationMode
      * @return ResultInterface
+     * @throws FinderException
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getResult($hydrationMode = Query::HYDRATE_OBJECT)
     {
@@ -289,6 +304,11 @@ abstract class AbstractFinder implements FinderInterface
         $total = $this->getTotal();
 
         return $this->createResult($entities, $total, $this->getParameters(), $this->getRouteParameters(), $page, $perPage);
+    }
+
+    protected function getPrimaryKeyName()
+    {
+        return 'id';
     }
 
     /**
