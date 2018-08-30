@@ -142,7 +142,7 @@ class Result implements ResultInterface
         $perPage = $this->getPerPage();
         if($perPage === null) return 1;
         $total = $this->getTotal();
-        $totalPages =  ceil($total / $perPage);
+        $totalPages =  (int)ceil($total / $perPage);
         if($totalPages <= 0) return 1;
         return $totalPages;
     }

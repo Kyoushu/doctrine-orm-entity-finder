@@ -33,10 +33,12 @@ class ResultTest extends FinderTestCase
     {
         $result = new Result(array(), 50, array(), array(), 1, 10);
 
+        $this->assertInternalType('integer', $result->getTotalPages());
         $this->assertEquals(5, $result->getTotalPages());
 
         $result = new Result(array(), 0, array(), array(), 1, 10);
 
+        $this->assertInternalType('integer', $result->getTotalPages());
         $this->assertEquals(1, $result->getTotalPages());
     }
 
