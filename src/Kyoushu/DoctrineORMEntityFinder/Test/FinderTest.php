@@ -226,4 +226,32 @@ class FinderTest extends FinderTestCase
 
     }
 
+    public function testConfigureResultIdsQueryBuilder()
+    {
+        $entityManager = $this->createEntityManager();
+
+        $finder = new MockFinder();
+        $finder->setEntityManager($entityManager);
+
+        $queryBuilder = $finder->createQueryBuilder();
+        $queryBuilder->orderBy('entity.name', 'ASC');
+        $finder->configureResultIdsQueryBuilder($queryBuilder);
+
+        $selectParts = $queryBuilder->getDQLPart('select');
+        $this->assertCount(2, $selectParts);
+
+        $this->assertEquals('DISTINCT entity.id', $selectParts[0]->getParts()[0]);
+        $this->assertEquals('entity.name', $selectParts[1]->getParts()[0]);
+
+        $queryBuilder = $finder->createQueryBuilder();
+        $queryBuilder->orderBy('entity.id', 'DESC');
+        $finder->configureResultIdsQueryBuilder($queryBuilder);
+
+        $selectParts = $queryBuilder->getDQLPart('select');
+        $this->assertCount(1, $selectParts);
+
+        $this->assertEquals('DISTINCT entity.id', $selectParts[0]->getParts()[0]);
+
+    }
+
 }

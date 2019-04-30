@@ -98,6 +98,11 @@ interface FinderInterface
     public function configureQueryBuilder(QueryBuilder $queryBuilder);
 
     /**
+     * @param QueryBuilder $queryBuilder
+     */
+    public function configureResultIdsQueryBuilder(QueryBuilder $queryBuilder);
+
+    /**
      * @return int
      */
     public function getTotal();

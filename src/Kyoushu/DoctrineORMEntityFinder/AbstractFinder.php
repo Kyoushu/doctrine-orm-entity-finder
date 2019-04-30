@@ -243,9 +243,9 @@ abstract class AbstractFinder implements FinderInterface
     {
         $primaryKeyName = $this->getPrimaryKeyName();
 
-        $query = $this->createQueryBuilder()
-            ->select(sprintf('DISTINCT %s.%s', $this->getEntityAlias(), $primaryKeyName))
-            ->getQuery();
+        $queryBuilder = $this->createQueryBuilder();
+        $this->configureResultIdsQueryBuilder($queryBuilder);
+        $query = $queryBuilder->getQuery();
 
         $result = $query->getArrayResult();
 
@@ -255,6 +255,25 @@ abstract class AbstractFinder implements FinderInterface
         }
 
         return $ids;
+    }
+
+    public function configureResultIdsQueryBuilder(QueryBuilder $queryBuilder)
+    {
+        $primaryKeyName = $this->getPrimaryKeyName();
+        $queryBuilder->select(sprintf('DISTINCT %s.%s', $this->getEntityAlias(), $primaryKeyName));
+
+        // Ensure that any columns used for sorting are also selected for MySQL 5.7+
+        $orderParts = $queryBuilder->getDQLPart('orderBy');
+        if($orderParts !== null){
+            array_walk($orderParts, function(Query\Expr\OrderBy $orderBy) use ($queryBuilder, $primaryKeyName){
+                foreach($orderBy->getParts() as $part){
+                    $column = preg_replace('/\s(ASC|DESC)$/', '', $part);
+                    if($column === sprintf('%s.%s', $this->getEntityAlias(), $primaryKeyName)) continue;
+                    $queryBuilder->addSelect($column);
+                }
+            });
+        }
+
     }
 
     /**
