@@ -267,7 +267,7 @@ abstract class AbstractFinder implements FinderInterface
         if($orderParts !== null){
             array_walk($orderParts, function(Query\Expr\OrderBy $orderBy) use ($queryBuilder, $primaryKeyName){
                 foreach($orderBy->getParts() as $part){
-                    $column = preg_replace('/\s(ASC|DESC)$/', '', $part);
+                    $column = preg_replace('/\s(ASC|DESC)$/i', '', $part);
                     if($column === sprintf('%s.%s', $this->getEntityAlias(), $primaryKeyName)) continue;
                     $queryBuilder->addSelect($column);
                 }
